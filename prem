@@ -1,16 +1,16 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # ==========================================
-# 0. ระบบตั้งค่าและตรวจสอบรหัสผ่าน (รองรับหลายรหัส)
+# 0. ระบบตั้งค่าและตรวจสอบรหัสผ่าน
 # ==========================================
 VALID_PASSWORDS=("1234" "5678" "prem99" "infinite2026")
 MAX_ATTEMPTS=3
 
 check_password() {
     clear
-    printf -- "==========================================\r\n"
-    printf -- "        INFINITE SHOP - VERIFICATION      \r\n"
-    printf -- "==========================================\r\n"
+    echo "=========================================="
+    echo "        INFINITE SHOP - VERIFICATION      "
+    echo "=========================================="
     
     local ATTEMPTS=0
     while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
@@ -26,19 +26,19 @@ check_password() {
         done
         
         if [ $IS_CORRECT -eq 1 ]; then
-            printf "[✓] เข้าสู่ระบบสำเร็จ!\r\n\r\n"
+            echo -e "[✓] เข้าสู่ระบบสำเร็จ!\n"
             sleep 1
             return 0
         else
             ATTEMPTS=$((ATTEMPTS + 1))
             REMAINING=$((MAX_ATTEMPTS - ATTEMPTS))
             if [ $REMAINING -gt 0 ]; then
-                printf "[✗] รหัสผ่านไม่ถูกต้อง! (เหลืออีก $REMAINING ครั้ง)\r\n\r\n"
+                echo -e "[✗] รหัสผ่านไม่ถูกต้อง! (เหลืออีก $REMAINING ครั้ง)\n"
             fi
         fi
     done
 
-    printf "[!] คุณใส่รหัสผ่านผิดเกินกำหนด ปิดการทำงานระบบ\r\n"
+    echo "[!] คุณใส่รหัสผ่านผิดเกินกำหนด ปิดการทำงานระบบ"
     exit 1
 }
 
@@ -50,28 +50,31 @@ install_apk() {
     local URL=$2
     local TEMP_FILE="/sdcard/Download/temp_app.apk"
 
-    printf "\r\n[+] Downloading: %s...\r\n" "$NAME"
+    echo ""
+    echo "[+] Downloading: $NAME..."
     curl -sL "$URL" -o "$TEMP_FILE"
 
     if [ -f "$TEMP_FILE" ]; then
-        printf "[+] Installing: %s...\r\n" "$NAME"
+        echo "[+] Installing: $NAME..."
         
+        # ติดตั้งผ่าน Root และเคลียร์ Cursor ตัวหนังสือเบี้ยว
         su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
         local STATUS=$?
+        printf "\r"
 
         if [ $STATUS -eq 0 ]; then
-            printf "[✓] %s Installed Successfully!\r\n" "$NAME"
+            echo "[✓] $NAME Installed Successfully!"
         else
-            printf "[✗] Failed to install %s\r\n" "$NAME"
+            echo "[✗] Failed to install $NAME"
         fi
         rm -f "$TEMP_FILE"
     else
-        printf "[✗] Download failed for %s\r\n" "$NAME"
+        echo "[✗] Download failed for $NAME"
     fi
 }
 
 # ==========================================
-# 2. ฟังก์ชันแสดงรายการและรับค่าตัวเลือก (แก้เส้นคั่นแล้ว)
+# 2. ฟังก์ชันแสดงรายการและรับค่าตัวเลือก
 # ==========================================
 process_selection() {
     local CATEGORY_NAME=$1
@@ -80,15 +83,15 @@ process_selection() {
     local TOTAL=${#APPS[@]}
 
     clear
-    printf -- "==========================================\r\n"
-    printf "          %s          \r\n" "$CATEGORY_NAME"
-    printf -- "==========================================\r\n"
+    echo "=========================================="
+    echo "          $CATEGORY_NAME          "
+    echo "=========================================="
     for i in "${!APPS[@]}"; do
-        printf "  [%d] %s Clone #%d\r\n" "$((i+1))" "$CATEGORY_NAME" "$((i+1))"
+        echo "  [$((i+1))] $CATEGORY_NAME Clone #$((i+1))"
     done
-    printf -- "==========================================\r\n"
-    printf " ตัวอย่างการพิมพ์: 1-5 | 1 3 5 | all\r\n"
-    printf -- "------------------------------------------\r\n"
+    echo "=========================================="
+    echo " ตัวอย่างการพิมพ์: 1-5 | 1 3 5 |"
+    echo "------------------------------------------"
 
     read -p "เลือกตัวโคลนที่ต้องการติดตั้ง: " INPUT_CHOICE
 
@@ -116,7 +119,8 @@ process_selection() {
         if [ $INDEX -ge 0 ] && [ $INDEX -lt $TOTAL ]; then
             install_apk "$CATEGORY_NAME Clone #$((INDEX+1))" "${APPS[$INDEX]}"
         else
-            printf "\r\n[!] หมายเลข %d ไม่มีในรายการ\r\n" "$((INDEX+1))"
+            echo ""
+            echo "[!] หมายเลข $((INDEX+1)) ไม่มีในรายการ"
         fi
     done
 }
@@ -146,12 +150,12 @@ check_password
 
 # 2. แสดงเมนูหลักหลังจากรหัสผ่านถูกต้อง
 clear
-printf -- "==========================================\r\n"
-printf "          INFINITE SHOP INSTALLER         \r\n"
-printf -- "==========================================\r\n"
-printf "  [1] Delta Clones (%d Apps)\r\n" "${#DELTA_APPS[@]}"
-printf "  [2] ArceusX lite (%d Apps)\r\n" "${#ARCEUS_APPS[@]}"
-printf -- "==========================================\r\n"
+echo "=========================================="
+echo "          INFINITE SHOP INSTALLER         "
+echo "=========================================="
+echo "  [1] Delta Clones (${#DELTA_APPS[@]} Apps)"
+echo "  [2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
+echo "=========================================="
 read -p "เลือกหมวดหมู่ที่ต้องการ (1-2): " MAIN_CHOICE
 
 case $MAIN_CHOICE in
@@ -162,10 +166,12 @@ case $MAIN_CHOICE in
         process_selection "ArceusX lite" "${ARCEUS_APPS[@]}"
         ;;
     *)
-        printf "\r\n[!] ตัวเลือกไม่ถูกต้อง\r\n"
+        echo ""
+        echo "[!] ตัวเลือกไม่ถูกต้อง"
         ;;
 esac
 
-printf "\r\n==========================================\r\n"
-printf " Process Finished!\r\n"
-printf -- "==========================================\r\n"
+echo ""
+echo "=========================================="
+echo " Process Finished!"
+echo "=========================================="
