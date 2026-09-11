@@ -1,0 +1,114 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+# ฟังก์ชันสำหรับดาวน์โหลดและสั่งติดตั้ง APK
+install_apk() {
+    local NAME=$1
+    local URL=$2
+    local TEMP_FILE="/sdcard/Download/temp_app.apk"
+
+    echo -e "\n[+] Downloading: $NAME..."
+    curl -sL "$URL" -o "$TEMP_FILE"
+
+    if [ -f "$TEMP_FILE" ]; then
+        echo "[+] Installing: $NAME..."
+        su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
+        
+        if [ $? -eq 0 ]; then
+            echo "[✓] $NAME Installed Successfully!"
+        else
+            echo "[✗] Failed to install $NAME"
+        fi
+        rm -f "$TEMP_FILE"
+    else
+        echo "[✗] Download failed for $NAME"
+    fi
+}
+
+# ฟังก์ชันเลือกติดตั้งจากหมวดหมู่
+process_selection() {
+    local CATEGORY_NAME=$1
+    shift
+    local APPS=("$@")
+
+    clear
+    echo "=========================================="
+    echo "          $CATEGORY_NAME          "
+    echo "=========================================="
+    for i in "${!APPS[@]}"; do
+        echo "  [$((i+1))] $CATEGORY_NAME Clone #$((i+1))"
+    done
+    echo "=========================================="
+    echo " (พิมพ์ตัวเลขที่ต้องการ เช่น: 1 3 หรือ 1 2 5)"
+    echo "------------------------------------------"
+
+    read -p "เลือกตัวโคลนที่ต้องการติดตั้ง: " -a CHOICES
+
+    for CHOICE in "${CHOICES[@]}"; do
+        INDEX=$((CHOICE-1))
+        if [ $INDEX -ge 0 ] && [ $INDEX -lt ${#APPS[@]} ]; then
+            install_apk "$CATEGORY_NAME Clone #$CHOICE" "${APPS[$INDEX]}"
+        else
+            echo -e "\n[!] หมายเลข $CHOICE ไม่มีในรายการ"
+        fi
+    done
+}
+
+# ==========================================
+# 1. รายชื่อลิงก์ Direct Link ของ Delta
+# (หากมีลิงก์ นำมาวางแทนที่ลิงก์ตัวอย่างด้านล่างได้เลยครับ)
+# ==========================================
+DELTA_APPS=(
+  "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/delta1.apk"
+  "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/delta2.apk"
+)
+
+# ==========================================
+# 2. รายชื่อลิงก์ Direct Link ของ ArceusX (ใส่ลิงก์ของคุณให้แล้ว)
+# ==========================================
+ARCEUS_APPS=(
+  "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/ArceusX.lite.by.Suphawat.1_2.737.1584.apk"
+  "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/ArceusX.lite.by.Suphawat.2_2.737.1584.apk"
+  "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/ArceusX.lite.by.Suphawat.3_2.737.1584.apk"
+  "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/ArceusX.lite.by.Suphawat.4_2.737.1584.apk"
+  "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/ArceusX.lite.by.Suphawat.5_2.737.1584.apk"
+)
+
+# ==========================================
+# หน้าจอเมนูหลัก (Main Menu)
+# ==========================================
+clear
+echo "=========================================="
+echo "          INFINITE SHOP INSTALLER         "
+echo "=========================================="
+echo "  [1] Delta Clones"
+echo "  [2] Arceus Clones (${#ARCEUS_APPS[@]} Apps)"
+echo "  [3] ติดตั้งทั้งหมด (All Clones)"
+echo "=========================================="
+read -p "เลือกหมวดหมู่ที่ต้องการ (1-3): " MAIN_CHOICE
+
+case $MAIN_CHOICE in
+    1)
+        process_selection "Delta" "${DELTA_APPS[@]}"
+        ;;
+    2)
+        process_selection "Arceus" "${ARCEUS_APPS[@]}"
+        ;;
+    3)
+        echo -e "\n[+] Installing ALL Delta Clones..."
+        for i in "${!DELTA_APPS[@]}"; do
+            install_apk "Delta Clone #$((i+1))" "${DELTA_APPS[$i]}"
+        done
+        
+        echo -e "\n[+] Installing ALL Arceus Clones..."
+        for i in "${!ARCEUS_APPS[@]}"; do
+            install_apk "Arceus Clone #$((i+1))" "${ARCEUS_APPS[$i]}"
+        done
+        ;;
+    *)
+        echo -e "\n[!] ตัวเลือกไม่ถูกต้อง"
+        ;;
+esac
+
+echo -e "\n=========================================="
+echo " Process Finished!"
+echo "=========================================="
