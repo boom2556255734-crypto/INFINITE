@@ -1,23 +1,31 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # ==========================================
-# 0. ระบบตั้งค่าและตรวจสอบรหัสผ่าน
+# 0. ระบบตั้งค่าและตรวจสอบรหัสผ่าน (รองรับหลายรหัส)
 # ==========================================
-SECRET_KEY="1234"     # <-- เปลี่ยนรหัสผ่านตรงนี้
+VALID_PASSWORDS=("1234" "5678" "prem99" "infinite2026")
 MAX_ATTEMPTS=3
 
 check_password() {
     clear
-    printf "==========================================\r\n"
-    printf "        INFINITE SHOP - VERIFICATION      \r\n"
-    printf "==========================================\r\n"
+    printf -- "==========================================\r\n"
+    printf -- "        INFINITE SHOP - VERIFICATION      \r\n"
+    printf -- "==========================================\r\n"
     
     local ATTEMPTS=0
     while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
         read -s -p "กรุณาใส่รหัสผ่านเพื่อใช้งาน: " USER_PASS
         echo ""
         
-        if [ "$USER_PASS" == "$SECRET_KEY" ]; then
+        local IS_CORRECT=0
+        for PASS in "${VALID_PASSWORDS[@]}"; do
+            if [ "$USER_PASS" == "$PASS" ]; then
+                IS_CORRECT=1
+                break
+            fi
+        done
+        
+        if [ $IS_CORRECT -eq 1 ]; then
             printf "[✓] เข้าสู่ระบบสำเร็จ!\r\n\r\n"
             sleep 1
             return 0
@@ -35,7 +43,7 @@ check_password() {
 }
 
 # ==========================================
-# 1. ฟังก์ชันดาวน์โหลดและติดตั้ง (แก้ตัวหนังสือเบี้ยวแล้ว)
+# 1. ฟังก์ชันดาวน์โหลดและติดตั้ง
 # ==========================================
 install_apk() {
     local NAME=$1
@@ -48,7 +56,6 @@ install_apk() {
     if [ -f "$TEMP_FILE" ]; then
         printf "[+] Installing: %s...\r\n" "$NAME"
         
-        # ป้องกัน Root Shell ทำตัวหนังสือเยื้อง
         su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
         local STATUS=$?
 
@@ -64,7 +71,7 @@ install_apk() {
 }
 
 # ==========================================
-# 2. ฟังก์ชันแสดงรายการและรับค่าตัวเลือก
+# 2. ฟังก์ชันแสดงรายการและรับค่าตัวเลือก (แก้เส้นคั่นแล้ว)
 # ==========================================
 process_selection() {
     local CATEGORY_NAME=$1
@@ -73,15 +80,15 @@ process_selection() {
     local TOTAL=${#APPS[@]}
 
     clear
-    printf "==========================================\r\n"
+    printf -- "==========================================\r\n"
     printf "          %s          \r\n" "$CATEGORY_NAME"
-    printf "==========================================\r\n"
+    printf -- "==========================================\r\n"
     for i in "${!APPS[@]}"; do
         printf "  [%d] %s Clone #%d\r\n" "$((i+1))" "$CATEGORY_NAME" "$((i+1))"
     done
-    printf "==========================================\r\n"
+    printf -- "==========================================\r\n"
     printf " ตัวอย่างการพิมพ์: 1-5 | 1 3 5 | all\r\n"
-    printf "------------------------------------------\r\n"
+    printf -- "------------------------------------------\r\n"
 
     read -p "เลือกตัวโคลนที่ต้องการติดตั้ง: " INPUT_CHOICE
 
@@ -139,12 +146,12 @@ check_password
 
 # 2. แสดงเมนูหลักหลังจากรหัสผ่านถูกต้อง
 clear
-printf "==========================================\r\n"
+printf -- "==========================================\r\n"
 printf "          INFINITE SHOP INSTALLER         \r\n"
-printf "==========================================\r\n"
+printf -- "==========================================\r\n"
 printf "  [1] Delta Clones (%d Apps)\r\n" "${#DELTA_APPS[@]}"
 printf "  [2] ArceusX lite (%d Apps)\r\n" "${#ARCEUS_APPS[@]}"
-printf "==========================================\r\n"
+printf -- "==========================================\r\n"
 read -p "เลือกหมวดหมู่ที่ต้องการ (1-2): " MAIN_CHOICE
 
 case $MAIN_CHOICE in
@@ -161,4 +168,4 @@ esac
 
 printf "\r\n==========================================\r\n"
 printf " Process Finished!\r\n"
-printf "==========================================\r\n"
+printf -- "==========================================\r\n"
