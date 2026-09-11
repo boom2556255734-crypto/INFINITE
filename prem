@@ -1,12 +1,15 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
+# ==========================================
 # ฟังก์ชันสำหรับดาวน์โหลดและสั่งติดตั้ง APK
+# ==========================================
 install_apk() {
     local NAME=$1
     local URL=$2
     local TEMP_FILE="/sdcard/Download/temp_app.apk"
 
-    echo -e "\n[+] Downloading: $NAME..."
+    echo ""
+    echo "[+] Downloading: $NAME..."
     curl -sL "$URL" -o "$TEMP_FILE"
 
     if [ -f "$TEMP_FILE" ]; then
@@ -24,7 +27,9 @@ install_apk() {
     fi
 }
 
-# ฟังก์ชันเลือกติดตั้งจากหมวดหมู่
+# ==========================================
+# ฟังก์ชันแสดงรายการและรับค่าตัวเลือก
+# ==========================================
 process_selection() {
     local CATEGORY_NAME=$1
     shift
@@ -48,14 +53,14 @@ process_selection() {
         if [ $INDEX -ge 0 ] && [ $INDEX -lt ${#APPS[@]} ]; then
             install_apk "$CATEGORY_NAME Clone #$CHOICE" "${APPS[$INDEX]}"
         else
-            echo -e "\n[!] หมายเลข $CHOICE ไม่มีในรายการ"
+            echo ""
+            echo "[!] หมายเลข $CHOICE ไม่มีในรายการ"
         fi
     done
 }
 
 # ==========================================
 # 1. รายชื่อลิงก์ Direct Link ของ Delta
-# (หากมีลิงก์ นำมาวางแทนที่ลิงก์ตัวอย่างด้านล่างได้เลยครับ)
 # ==========================================
 DELTA_APPS=(
   "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/delta1.apk"
@@ -63,7 +68,7 @@ DELTA_APPS=(
 )
 
 # ==========================================
-# 2. รายชื่อลิงก์ Direct Link ของ ArceusX (ใส่ลิงก์ของคุณให้แล้ว)
+# 2. รายชื่อลิงก์ Direct Link ของ ArceusX
 # ==========================================
 ARCEUS_APPS=(
   "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/ArceusX.lite.by.Suphawat.1_2.737.1584.apk"
@@ -80,7 +85,7 @@ clear
 echo "=========================================="
 echo "          INFINITE SHOP INSTALLER         "
 echo "=========================================="
-echo "  [1] Delta Clones"
+echo "  [1] Delta Clones (${#DELTA_APPS[@]} Apps)"
 echo "  [2] Arceus Clones (${#ARCEUS_APPS[@]} Apps)"
 echo "  [3] ติดตั้งทั้งหมด (All Clones)"
 echo "=========================================="
@@ -94,21 +99,25 @@ case $MAIN_CHOICE in
         process_selection "Arceus" "${ARCEUS_APPS[@]}"
         ;;
     3)
-        echo -e "\n[+] Installing ALL Delta Clones..."
+        echo ""
+        echo "[+] Installing ALL Delta Clones..."
         for i in "${!DELTA_APPS[@]}"; do
             install_apk "Delta Clone #$((i+1))" "${DELTA_APPS[$i]}"
         done
         
-        echo -e "\n[+] Installing ALL Arceus Clones..."
+        echo ""
+        echo "[+] Installing ALL Arceus Clones..."
         for i in "${!ARCEUS_APPS[@]}"; do
             install_apk "Arceus Clone #$((i+1))" "${ARCEUS_APPS[$i]}"
         done
         ;;
     *)
-        echo -e "\n[!] ตัวเลือกไม่ถูกต้อง"
+        echo ""
+        echo "[!] ตัวเลือกไม่ถูกต้อง"
         ;;
 esac
 
-echo -e "\n=========================================="
+echo ""
+echo "=========================================="
 echo " Process Finished!"
 echo "=========================================="
